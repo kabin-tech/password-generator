@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PyPassword Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e9efec; --card:#fbfdfc; --ink:#14302b; --muted:#5d746e; --line:#cbd9d4;
+  --brand:#0f5c4d; --brand-ink:#fff; --soft:#dcebe6;
+  --c-let:#14302b; --c-num:#c2570c; --c-sym:#7b3fb8;
+  --weak:#d64545; --fair:#e0a100; --strong:#2f9e63; --vstrong:#0f5c4d;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1a17; --card:#16251f; --ink:#e4f1ec; --muted:#8fa8a0; --line:#2a403a;
+    --brand:#4fd1a8; --brand-ink:#08201a; --soft:#1e332c;
+    --c-let:#e4f1ec; --c-num:#ffa45c; --c-sym:#c79bff;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1a17; --card:#16251f; --ink:#e4f1ec; --muted:#8fa8a0; --line:#2a403a;
+  --brand:#4fd1a8; --brand-ink:#08201a; --soft:#1e332c;
+  --c-let:#e4f1ec; --c-num:#ffa45c; --c-sym:#c79bff;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{width:100%;max-width:520px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 18px 50px rgba(15,60,50,.12)}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+h1{margin:0;font-size:1.7rem;line-height:1.1;letter-spacing:-.02em}
+.sub{margin:6px 0 0;color:var(--muted);font-size:.95rem}
+.icon-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:12px;width:40px;height:40px;cursor:pointer;font-size:1.1rem;flex:none}
+.icon-btn:hover{background:var(--soft)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+
+.display{margin:22px 0 10px;background:var(--soft);border-radius:16px;padding:18px 16px;min-height:84px;display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:700;font-size:1.45rem;letter-spacing:.04em;word-break:break-all;line-height:1.35}
+.display .l{color:var(--c-let)} .display .n{color:var(--c-num)} .display .s{color:var(--c-sym)}
+.display.empty{color:var(--muted);font-weight:500;font-size:1rem;letter-spacing:0;font-family:"Bricolage Grotesque",sans-serif}
+.pop{animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.97);opacity:.5}to{transform:none;opacity:1}}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-bottom:14px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+
+.meter{height:8px;background:var(--soft);border-radius:99px;overflow:hidden}
+.meter span{display:block;height:100%;width:0;border-radius:99px;transition:width .3s,background .3s}
+.meter-row{display:flex;justify-content:space-between;font-size:.88rem;color:var(--muted);margin-top:8px}
+.meter-row b{color:var(--ink)}
+
+.rows{margin:24px 0 8px;display:grid;gap:18px}
+.row-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.row-top label{font-weight:700;display:flex;align-items:center;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%}
+.stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stepper button{width:38px;height:38px;border:0;background:transparent;color:var(--ink);font-size:1.2rem;cursor:pointer}
+.stepper button:hover{background:var(--soft)}
+.stepper output{min-width:42px;text-align:center;font-family:"JetBrains Mono",monospace;font-weight:700}
+input[type=range]{width:100%;margin:10px 0 0;accent-color:var(--brand);height:24px}
+
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.btn{height:50px;border-radius:14px;border:1px solid var(--line);font:700 1rem "Bricolage Grotesque",sans-serif;cursor:pointer;transition:transform .1s,background .15s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--soft)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.note{min-height:1.2em;margin:12px 0 0;text-align:center;font-size:.9rem;color:var(--muted)}
+@media (max-width:420px){.card{padding:20px}.display{font-size:1.15rem}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="card">
+  <header>
+    <div>
+      <h1>PyPassword Generator</h1>
+      <p class="sub">Choose how many of each character you want.</p>
+    </div>
+    <button class="icon-btn" id="theme" type="button" aria-label="Switch light or dark theme">◐</button>
+  </header>
+
+  <div class="display empty" id="out" aria-live="polite">Press Generate password</div>
+  <div class="legend">
+    <span><i style="background:var(--c-let)"></i>Letters</span>
+    <span><i style="background:var(--c-num)"></i>Numbers</span>
+    <span><i style="background:var(--c-sym)"></i>Symbols</span>
+  </div>
+
+  <div class="meter" aria-hidden="true"><span id="bar"></span></div>
+  <div class="meter-row"><span>Strength: <b id="label">—</b></span><span id="len">0 characters</span></div>
+
+  <section class="rows" id="rows"></section>
+
+  <div class="actions">
+    <button class="btn ghost" id="copy" type="button" disabled>Copy password</button>
+    <button class="btn primary" id="gen" type="button">Generate password</button>
+  </div>
+  <p class="note" id="note"></p>
+</main>
+
+<script>
+const SETS = {
+  letters:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  numbers:"0123456789",
+  symbols:"@#$%&*+-=/\\|^~<>()[]{}:;,._`"
+};
+const CFG = [
+  {key:"letters", name:"Letters", cls:"l", color:"var(--c-let)", val:8, max:30},
+  {key:"numbers", name:"Numbers", cls:"n", color:"var(--c-num)", val:4, max:20},
+  {key:"symbols", name:"Symbols", cls:"s", color:"var(--c-sym)", val:3, max:20}
+];
+const $ = id => document.getElementById(id);
+let current = "";
+
+// secure random int in [0, n)
+function rnd(n){
+  const a = new Uint32Array(1), lim = Math.floor(0x100000000 / n) * n;
+  do { crypto.getRandomValues(a); } while (a[0] >= lim);
+  return a[0] % n;
+}
+
+// build controls
+const rows = $("rows");
+CFG.forEach(c=>{
+  const d = document.createElement("div");
+  d.innerHTML = `
+    <div class="row-top">
+      <label for="r-${c.key}"><span class="dot" style="background:${c.color}"></span>${c.name}</label>
+      <div class="stepper">
+        <button type="button" aria-label="Fewer ${c.name.toLowerCase()}" data-k="${c.key}" data-d="-1">−</button>
+        <output id="v-${c.key}">${c.val}</output>
+        <button type="button" aria-label="More ${c.name.toLowerCase()}" data-k="${c.key}" data-d="1">+</button>
+      </div>
+    </div>
+    <input type="range" id="r-${c.key}" min="0" max="${c.max}" value="${c.val}">`;
+  rows.appendChild(d);
+  d.querySelector("input").addEventListener("input", e=>{ set(c, +e.target.value); });
+});
+rows.addEventListener("click", e=>{
+  const b = e.target.closest("button[data-k]"); if(!b) return;
+  const c = CFG.find(x=>x.key===b.dataset.k);
+  set(c, Math.min(c.max, Math.max(0, c.val + +b.dataset.d)));
+});
+function set(c, v){
+  c.val = v; $("v-"+c.key).textContent = v; $("r-"+c.key).value = v;
+  $("gen").disabled = total() === 0;
+}
+const total = () => CFG.reduce((s,c)=>s+c.val,0);
+
+function generate(){
+  const chars = [];
+  CFG.forEach(c=>{
+    for(let i=0;i<c.val;i++) chars.push({ch:SETS[c.key][rnd(SETS[c.key].length)], cls:c.cls});
+  });
+  if(!chars.length){ $("note").textContent = "Add at least one character to generate a password."; return; }
+  for(let i=chars.length-1;i>0;i--){ const j=rnd(i+1); [chars[i],chars[j]]=[chars[j],chars[i]]; }
+  current = chars.map(x=>x.ch).join("");
+  const out = $("out");
+  out.classList.remove("empty","pop"); void out.offsetWidth; out.classList.add("pop");
+  out.innerHTML = chars.map(x=>`<span class="${x.cls}">${x.ch.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</span>`).join("");
+  $("copy").disabled = false;
+  $("note").textContent = "";
+  strength();
+}
+
+function strength(){
+  let pool = 0; CFG.forEach(c=>{ if(c.val>0) pool += SETS[c.key].length; });
+  const bits = current.length * Math.log2(pool || 1);
+  let w, l, col;
+  if(bits < 40){ w=25; l="Weak"; col="var(--weak)"; }
+  else if(bits < 60){ w=50; l="Fair"; col="var(--fair)"; }
+  else if(bits < 80){ w=75; l="Strong"; col="var(--strong)"; }
+  else { w=100; l="Very strong"; col="var(--vstrong)"; }
+  $("bar").style.width = w+"%"; $("bar").style.background = col;
+  $("label").textContent = l;
+  $("len").textContent = current.length + " characters";
+}
+
+async function copy(){
+  if(!current) return;
+  try { await navigator.clipboard.writeText(current); $("note").textContent = "Copied to clipboard."; }
+  catch(e){
+    const t = document.createElement("textarea"); t.value = current; document.body.appendChild(t); t.select();
+    let ok=false; try{ ok=document.execCommand("copy"); }catch(_){}
+    t.remove();
+    $("note").textContent = ok ? "Copied to clipboard." : "Couldn't copy. Select the password and copy it manually.";
+  }
+}
+
+$("gen").addEventListener("click", generate);
+$("copy").addEventListener("click", copy);
+$("theme").addEventListener("click", ()=>{
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme==="dark" : matchMedia("(prefers-color-scheme:dark)").matches;
+  r.dataset.theme = dark ? "light" : "dark";
+});
+</script>
+</body>
+</html>
